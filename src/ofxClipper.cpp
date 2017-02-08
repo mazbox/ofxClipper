@@ -2,7 +2,6 @@
  *  ofxClipper.cpp
  *
  *  Created by Marek Bereza on 18/05/2013.
- *  Add ofPolyline and ofPath supported by ryanaltair on 07/02/2017
  */
 
 
@@ -19,274 +18,97 @@ ofxClipper::~ofxClipper() {
 
 
 
-
- 
-ofPath ofxClipper::getMultiUnion(vector<ofPath> inPath) {
-    ofPath p;
-    ofPath inp;
-    for(auto &path:inPath){
-        inp.append(path);
-    }
-    p= execute(ctUnion, inp);
-    return p;
-}
-ofPath ofxClipper::getUnion(ofPath subPath,ofPath clipPath) {
-    ofPath p;
-    p= execute(ctUnion, subPath,clipPath);
-    return p;
-}
-ofPath ofxClipper::getIntersection(ofPath subPath,ofPath clipPath) {
-    ofPath p;
-    p= execute(ctIntersection, subPath,clipPath);
-    return p;
-}
-ofPath ofxClipper::getXor(ofPath subPath,ofPath clipPath) {
-    ofPath p;
-    p= execute(ctXor, subPath,clipPath);
-    return p;
-}
-ofPath ofxClipper::getDifference(ofPath subPath,ofPath clipPath) {
-    ofPath p;
-    p= execute(ctDifference, subPath,clipPath);
-    return p;
+void ofxClipper::doUnion(PolygonList &inPolys, PolygonList &outPolys) {
+	execute(ctUnion, inPolys, outPolys);
 }
 
-vector<ofPolyline> ofxClipper::getPolylinesFromPath(ofPath inpath){
-    vector<ofPolyline> polylines;
-    ofPolyline polyline;
-    polylines.clear();
-    //get commands from path
-    vector<ofPath::Command> commands;
-    vector<ofPath::Command>& pathCommands = inpath.getCommands();
-    cout<<"command count:" << inpath.getCommands().size()<<endl;
-    commands.swap(pathCommands);
-    int curveResolution = ofGetStyle().curveResolution;
-    int arcResolution = inpath.getCircleResolution();
-    
-    for(int i=0; i<commands.size(); i++)
-    {
-        switch(commands[i].type)
-        {
-            case ofPath::Command::moveTo:
-                polyline.addVertex(commands[i].to);
-                
-                break;
-            case ofPath::Command::lineTo:
-                polyline.addVertex(commands[i].to);
-                break;
-            case ofPath::Command::curveTo:
-                //                polyline.curveTo(commands[i].to);
-                polyline.curveTo(commands[i].to, curveResolution);
-                break;
-            case ofPath::Command::bezierTo:
-                //                polyline.bezierTo(commands[i].cp1,commands[i].cp2,commands[i].to);
-                polyline.bezierTo(commands[i].cp1,commands[i].cp2,commands[i].to, curveResolution);
-                break;
-            case ofPath::Command::quadBezierTo:
-                polyline.quadBezierTo(commands[i].cp1,commands[i].cp2,commands[i].to, curveResolution);
-                //                polyline.quadBezierTo(commands[i].cp1,commands[i].cp2,commands[i].to);
-                break;
-            case ofPath::Command::arc:
-                polyline.arc(commands[i].to,commands[i].radiusX,commands[i].radiusY,commands[i].angleBegin,commands[i].angleEnd, arcResolution);
-                //                polyline.arc(commands[i].to,commands[i].radiusX,commands[i].radiusY,commands[i].angleBegin,commands[i].angleEnd);
-                
-                break;
-            case ofPath::Command::arcNegative:
-                polyline.arcNegative(commands[i].to,commands[i].radiusX,commands[i].radiusY,commands[i].angleBegin,commands[i].angleEnd, arcResolution);
-                
-                break;
-            case ofPath::Command::close:
-                // we won't add any not close line
-                polyline.close();
-                polylines.push_back(polyline);
-                polyline.clear();
-                break;
-        }
-        
-    }
-    return polylines;
+void ofxClipper::doIntersection(PolygonList &inPolys, PolygonList &outPolys) {
+	execute(ctIntersection, inPolys, outPolys);
 }
 
-ofPath  ofxClipper::getPathFromPolylines(vector<ofPolyline> inpolylines){
-    ofPath path;
-    for(auto &polyline:inpolylines){
-        vector<ofVec2f> points;
-        for(auto &p:polyline){
-            points.push_back(p);
-        }
-        path.moveTo(points[0]);
-        for(int i=1;i<points.size();i++){
-            path.lineTo(points[i]);
-        }
-        path.close();
-    }
-    return path;
-
+void ofxClipper::doXor(PolygonList &inPolys, PolygonList &outPolys) {
+	execute(ctXor, inPolys, outPolys);
 }
 
-
-vector<ofVec2f> ofxClipper::getVerticesFromPolyline(ofPolyline polyline){
-    vector<ofVec2f> returnVertices;
-    
-    for(auto &p:polyline){
-        returnVertices.push_back(p);
-        //  cout<<p<<"\t";
-    }
-    cout<<endl;
-     
-    return returnVertices;
-}
-PolygonList ofxClipper::getPolygonListFromPath(ofPath inpath){
-    PolygonList returnPolygons;
-    vector<ofPolyline> polylines;
-    polylines=getPolylinesFromPath(inpath);
-    for (auto &line:polylines) {
-        
-        returnPolygons.push_back(getVerticesFromPolyline(line));
-    }
-    return returnPolygons;
-}
-ofPolyline ofxClipper::getPolylineFromVectices(PolygonList &inPolys){
-    ofPolyline polyline;
-    for(auto &line:inPolys){
-        for(auto &p:line){
-            polyline.addVertex(p);
-        }
-        polyline.close();
-    }
-    return polyline;
-}
- 
-ClipperLib::Path ofxClipper::getClipperPathFromVecVec2f(vector<ofVec2f> &poly){
-    float valXRange = maxVals.x - minVals.x;
-    float valYRange = maxVals.y - maxVals.y;
-    ClipperLib::Path p;
-    p.reserve(poly.size());
-    
-    for(int i = 0; i < poly.size(); i++) {
-        float x = (poly[i].x - minVals.x)/valXRange;
-        float y = (poly[i].y - minVals.y)/valYRange;
-        /*
-         p.push_back(IntPoint( x * LONG_MAX,
-         y * LONG_MAX
-         ));*/
-        p.push_back(IntPoint(poly[i].x, poly[i].y));
-    }
-    return p;
-}
-ClipperLib::Path ofxClipper::getClipperPathFromPolyline(ofPolyline polyline){
-    float valXRange = maxVals.x - minVals.x;
-    float valYRange = maxVals.y - maxVals.y;
-    vector<ofVec2f> poly;
-    
-    for(auto &p:polyline){
-        poly.push_back(p);
-    }
-    ClipperLib::Path p;
-    p=getClipperPathFromVecVec2f(poly);
-    return p;
-}
-ClipperLib::Paths ofxClipper::getClipperPathsFromPath(ofPath inpath){
-    vector<ofPolyline> polylines;
-    polylines=getPolylinesFromPath(inpath);
-    ClipperLib::Paths returnPaths;
-    for(auto &line:polylines){
-        returnPaths.push_back(getClipperPathFromPolyline(line));
-    }
-    return returnPaths;
+void ofxClipper::doDifference(PolygonList &inPolys, PolygonList &outPolys) {
+	execute(ctDifference, inPolys, outPolys);
 }
 
-ofPath ofxClipper::getofPathFromPolygonList(PolygonList &inPolys){
-    ofPath returnPath;
-    for(auto &line:inPolys){
-        int i=0;
-        for(auto &p:line){
-            if(i==0){
-                returnPath.moveTo(p);
-            }else{
-                returnPath.lineTo(p);
-            }
-            i++;
-        }
-        returnPath.close();
-    }
-    return returnPath;
-    
+void ofxClipper::findMinMaxOfAll(PolygonList &polys, ofVec2f &minV, ofVec2f &maxV) {
+	minV.x = FLT_MAX;
+	minV.y = FLT_MAX;
+	maxV.x = FLT_MIN;
+	maxV.y = FLT_MIN;
+	for(int i = 0; i < polys.size(); i++) {
+		findMinMax(polys[i], minV, maxV);
+	}
+	
+	// printf("%.2f, %.2f     %.2f, %.2f\n", minV.x, minV.y, maxV.x, maxV.y);
 }
-vector<ofVec2f> ofxClipper::getOfVecVec2fFromClipperPath(ClipperLib::Path &p ) {
 
-    vector<ofVec2f> v;
-    float valXRange = maxVals.x - minVals.x;
-    
-    float valYRange = maxVals.y - maxVals.y;
-    
-    v.reserve(p.size());
-    
-    for(int i = 0; i < p.size(); i++) {
-        /*float x = p[i].X/LONG_MAX;
-         float y = p[i].Y/LONG_MAX;
-         x *= valXRange;
-         y *= valYRange;
-         x += minVals.x;
-         y += minVals.y;*/
-        
-        v.push_back(ofVec2f(p[i].X, p[i].Y));
-        
-    }
-    return v;
+void ofxClipper::findMinMax(vector<ofVec2f> &poly, ofVec2f &minv, ofVec2f &maxv) {
+	for(int i = 0; i < poly.size(); i++) {
+		if(poly[i].x<minv.x) minv.x = poly[i].x;
+		if(poly[i].y<minv.y) minv.y = poly[i].y;
+
+		if(poly[i].x>maxv.x) maxv.x = poly[i].x;
+		if(poly[i].y>maxv.y) maxv.y = poly[i].y;
+	}
 }
-ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath inPath){
-    ClipperLib::Paths output;
-    PolygonList outPolys;
-    ClipperLib::Paths paths=getClipperPathsFromPath(inPath);
-    int executeCount=paths.size();
-    for(int j=1;j<executeCount;j++){
-        
-        ClipperLib::Path p;
-        //add subject piece
-        if(j==1) {
-            p=paths[0];
-            clpr.AddPath(p, ptSubject,true);
-            p.clear();
-        }else{
-            clpr.AddPaths(output, ptSubject, true);
-        }
-        //add clip piece
-        p=paths[j];
-        clpr.AddPath(p,ptClip,true);
-        p.clear();
-        // excute
-        clpr.Execute(clipType, output, pftEvenOdd, pftEvenOdd);
-        clpr.Clear();
-    }
-    // turn into ofPoint aka ofVec2f
-    for(int i = 0; i < output.size(); i++) {
-        outPolys.push_back(getOfVecVec2fFromClipperPath(output[i]));
-    }
-    
-    return getofPathFromPolygonList(outPolys);
-    
+
+void ofxClipper::createClipperPoly(vector<ofVec2f> &poly, ClipperLib::Polygon &p) {
+	float valXRange = maxVals.x - minVals.x;
+	float valYRange = maxVals.y - maxVals.y;
+	
+	p.reserve(poly.size());
+	
+	for(int i = 0; i < poly.size(); i++) {
+		float x = (poly[i].x - minVals.x)/valXRange;
+		float y = (poly[i].y - minVals.y)/valYRange;
+		/*
+		p.push_back(IntPoint( x * LONG_MAX,
+							 y * LONG_MAX
+		));*/
+		p.push_back(IntPoint(poly[i].x, poly[i].y));
+	}
 }
-ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath subjectPath,ofPath clipPath) {
-    ClipperLib::Paths output;
-    PolygonList outPolys;
-    ClipperLib::Paths subjectP;
-    ClipperLib::Paths clipP;
-    //add subject piece
-    subjectP=getClipperPathsFromPath(subjectPath);
-    clpr.AddPaths(subjectP, ptSubject,true);
-    //add clip piece
-    clipP=getClipperPathsFromPath(clipPath);
-    clpr.AddPaths(clipP,ptClip,true);
-    // excute
-    clpr.Execute(clipType, output, pftEvenOdd, pftEvenOdd);
-    clpr.Clear();
-    // turn into ofPoint aka ofVec2f
-    for(int i = 0; i < output.size(); i++) {
-        outPolys.push_back( getOfVecVec2fFromClipperPath(output[i] ));
-    }
-    
-    return getofPathFromPolygonList(outPolys);
-    
+
+void ofxClipper::convertBackToOfVec2f(ClipperLib::Polygon &p, vector<ofVec2f> &v) {
+	
+	float valXRange = maxVals.x - minVals.x;
+	float valYRange = maxVals.y - maxVals.y;
+	
+	v.reserve(p.size());
+	
+	for(int i = 0; i < p.size(); i++) {
+		/*float x = p[i].X/LONG_MAX;
+		float y = p[i].Y/LONG_MAX;
+		x *= valXRange;
+		y *= valYRange;
+		x += minVals.x;
+		y += minVals.y;*/
+		v.push_back(ofVec2f(p[i].X, p[i].Y));
+	}
 }
- 
+
+void ofxClipper::execute(ClipperLib::ClipType clipType, PolygonList &inPolys, PolygonList &outPolys) {
+	
+	clpr.Clear();
+	output.clear();
+	//findMinMaxOfAll(minVals, maxVals);
+	
+	for(int i = 0; i < inPolys.size(); i++) {
+		ClipperLib::Polygon p;
+		createClipperPoly(inPolys[i], p);
+		if(i==0) clpr.AddPolygon(p, ptSubject);
+		else clpr.AddPolygon(p,ptClip);
+	}
+	clpr.Execute(clipType, output, pftEvenOdd, pftEvenOdd);
+	//printf("Output: %d\n", outp.size());
+	// convert back to float ofVec2fs
+	for(int i = 0; i < output.size(); i++) {
+		outPolys.push_back(vector<ofVec2f>());
+		convertBackToOfVec2f(output[i], outPolys.back());
+	}
+	
+}
