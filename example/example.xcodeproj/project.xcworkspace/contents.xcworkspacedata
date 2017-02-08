@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:example.xcodeproj">
+      location = "self:/Users/wangdongyan/Github/OpenFrameworks/of_v0.9.8_osx_release/apps/myApps/emptyExample/example.xcodeproj">
    </FileRef>
 </Workspace>
