@@ -1,9 +1,7 @@
 /********************************************************************************
  *                                                                              *
- * Author    :  Ryanaltair                                                      *
- * Version   :  1.0                                                             *
+ * Rewrite   :  Ryanaltair                                                      *
  * Date      :  8 Feb 2017                                                      *
- * Github    :  https://github.com/ryanaltair/ofxClipper                        *
  *                                                                              *
  * License:                                                                     *
  * Use, modification & distribution is subject to Boost Software License Ver 1. *
@@ -11,7 +9,7 @@
  *                                                                              *
  * Attributions:                                                                *
  * The code in a wrapper for clipper by Angus Johnson                           *
- * it based on the Marek Bereza ofxClipper,                                     *
+ * it based on the Marek Bereza ofxClipper works,                                     *
  * https://github.com/mazbox/ofxClipper                                         *
  * but lots changes for example the clipper version update to 6.4.0             *
  * and now we can use ofpath to excute bool operation                           *

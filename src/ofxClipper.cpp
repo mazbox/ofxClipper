@@ -1,10 +1,3 @@
-/**
- *  ofxClipper.cpp
- *
- *  Created by Marek Bereza on 18/05/2013.
- *  Add ofPolyline and ofPath supported by ryanaltair on 07/02/2017
- */
-
 
 #include "ofxClipper.h"
 
