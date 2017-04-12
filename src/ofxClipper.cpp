@@ -4,9 +4,12 @@
 using namespace ClipperLib;
 
 ofxClipper::ofxClipper() {
+    cout<<"now we have a clippper"<<endl;
 }
 
 ofxClipper::~ofxClipper() {
+    
+    cout<<"now we delete a clippper"<<endl;
 }
 
 
@@ -233,6 +236,7 @@ ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath inPath){
     PolygonList outPolys;
     ClipperLib::Paths paths=getClipperPathsFromPath(inPath);
     int executeCount=paths.size();
+    ClipperLib::Clipper clpr;
     for(int j=1;j<executeCount;j++){
         
         ClipperLib::Path p;
@@ -265,6 +269,7 @@ ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath subjectPath,ofP
     PolygonList outPolys;
     ClipperLib::Paths subjectP;
     ClipperLib::Paths clipP;
+    ClipperLib::Clipper clpr;
     //add subject piece
     subjectP=getClipperPathsFromPath(subjectPath);
     clpr.AddPaths(subjectP, ptSubject,true);

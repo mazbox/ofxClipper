@@ -18,6 +18,7 @@
  * Website   :  http://www.angusj.com                                           *
  *                                                                              *
  *******************************************************************************/
+#pragma once
 #include "clipper.hpp"
 #include "ofMain.h"
 
@@ -68,7 +69,7 @@ private:
     vector<ofVec2f> getOfVecVec2fFromClipperPath(ClipperLib::Path &p );
 	ofVec2f minVals;
 	ofVec2f maxVals;
-	ClipperLib::Clipper clpr;
+	
  	
    
     

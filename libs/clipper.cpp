@@ -1224,14 +1224,18 @@ bool ClipperBase::AddPath(const Path &pg, PolyType PolyTyp, bool Closed)
 bool ClipperBase::AddPaths(const Paths &ppg, PolyType PolyTyp, bool Closed)
 {
   bool result = false;
-  for (Paths::size_type i = 0; i < ppg.size(); ++i)
-    if (AddPath(ppg[i], PolyTyp, Closed)) result = true;
+    for (Paths::size_type i = 0; i < ppg.size(); ++i){
+        if (AddPath(ppg[i], PolyTyp, Closed)){
+            result = true;
+        }
+    }
   return result;
 }
 //------------------------------------------------------------------------------
 
 void ClipperBase::Clear()
 {
+ 
   DisposeLocalMinimaList();
   for (EdgeList::size_type i = 0; i < m_edges.size(); ++i)
   {
