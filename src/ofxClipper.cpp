@@ -20,10 +20,22 @@ ofxClipper::~ofxClipper() {
 ofPath ofxClipper::getMultiUnion(vector<ofPath> inPath) {
     ofPath p;
     ofPath inp;
-    for(auto &path:inPath){
-        inp.append(path);
+    switch (inPath.size()) {
+        case 0:
+            return p;
+            break;
+        case 1:
+            return inPath[0];
+            break;
+        default:
+            break;
     }
-    p= execute(ctUnion, inp);
+    p=getUnion(inPath[0],inPath[1]);
+    for(int i=2; i<inPath.size();i++){
+        p=getUnion(p,inPath[i]);
+    
+    }
+    
     return p;
 }
 ofPath ofxClipper::getUnion(ofPath subPath,ofPath clipPath) {
@@ -240,46 +252,22 @@ ofPath ofxClipper::getofPathFromClipperPath(ClipperLib::Paths clipPaths){
     return getofPathFromPolygonList(outPolys);
 
 }
-ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath inPath){
-    ClipperLib::Paths output;
-    ClipperLib::Paths paths=getClipperPathsFromPath(inPath);
-    int executeCount=paths.size();
-    ClipperLib::Clipper clpr;
-    for(int j=1;j<executeCount;j++){
-        
-        ClipperLib::Path p;
-        //add subject piece
-        if(j==1) {
-            p=paths[0];
-            clpr.AddPath(p, ptSubject,true);
-            p.clear();
-        }else{
-            clpr.AddPaths(output, ptSubject, true);
-        }
-        //add clip piece
-        p=paths[j];
-        clpr.AddPath(p,ptClip,true);
-        p.clear();
-        // excute
-        clpr.Execute(clipType, output, pftEvenOdd, pftEvenOdd);
-        clpr.Clear();
-    }
-    
-    return getofPathFromClipperPath(output);
-    
-}
+
 ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath subjectPath,ofPath clipPath) {
-    ClipperLib::Paths output;
-    ClipperLib::Paths subjectP;
-    ClipperLib::Paths clipP;
+
     ClipperLib::Clipper clpr;
     //add subject piece
+    
+    ClipperLib::Paths subjectP;
     subjectP=getClipperPathsFromPath(subjectPath);
     clpr.AddPaths(subjectP, ptSubject,true);
     //add clip piece
+    
+    ClipperLib::Paths clipP;
     clipP=getClipperPathsFromPath(clipPath);
     clpr.AddPaths(clipP,ptClip,true);
     // excute
+    ClipperLib::Paths output;
     clpr.Execute(clipType, output, pftEvenOdd, pftEvenOdd);
     clpr.Clear();
     

@@ -41,15 +41,7 @@ public:
     
 	
 private:
-     /**
-     used for multible union only
-
-     @param clipType cliptype it should be ctUnion
-     @param inPath the sub and clip in one path
-     @return answer
-     */
-    ofPath execute(ClipperLib::ClipType clipType, ofPath inPath);
-    
+   
     /**
      used for union difference xor intersection
 
