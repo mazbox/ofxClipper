@@ -40,7 +40,7 @@ public:
 
     
 	
-private:
+protected:
    
     /**
      used for union difference xor intersection
@@ -51,6 +51,7 @@ private:
      @return answer as one ofPath
      */
     ofPath execute(ClipperLib::ClipType clipType, ofPath subjectPath,ofPath clipPath);
+    
     vector<ofVec2f> getVerticesFromPolyline(ofPolyline polyline);
     PolygonList getPolygonListFromPath(ofPath inpath);
     ofPolyline getPolylineFromVectices(PolygonList &inPolys);
@@ -62,6 +63,8 @@ private:
     vector<ofVec2f> getOfVecVec2fFromClipperPath(ClipperLib::Path &p );
 	ofVec2f minVals;
 	ofVec2f maxVals;
+    
+    ClipperLib::Paths getClipperPathsFromofPathNew(ofPath path);
 	
  	
    
