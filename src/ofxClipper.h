@@ -34,14 +34,9 @@ public:
     ofPath getIntersection(ofPath subjectPath,ofPath clipPath );
     ofPath getXor(ofPath subjectPath,ofPath clipPath );
     ofPath getDifference(ofPath subjectPath,ofPath clipPath );
-    
     vector<ofPolyline>  getPolylinesFromPath(ofPath inpath);
     ofPath  getPathFromPolylines(vector<ofPolyline> inpolylines);
-
-    
-	
 protected:
-   
     /**
      used for union difference xor intersection
 
@@ -51,21 +46,12 @@ protected:
      @return answer as one ofPath
      */
     ofPath execute(ClipperLib::ClipType clipType, ofPath subjectPath,ofPath clipPath);
-    
-    vector<ofVec2f> getVerticesFromPolyline(ofPolyline polyline);
-    PolygonList getPolygonListFromPath(ofPath inpath);
-    ofPolyline getPolylineFromVectices(PolygonList &inPolys);
-    ClipperLib::Path getClipperPathFromVecVec2f(vector<ofVec2f> &poly);
-    ClipperLib::Path getClipperPathFromPolyline(ofPolyline polyline);
-    ClipperLib::Paths  getClipperPathsFromPath(ofPath inpath);
-    ofPath getofPathFromPolygonList(PolygonList &inPolys);
-    ofPath getofPathFromClipperPath(ClipperLib::Paths clipPaths);
-    vector<ofVec2f> getOfVecVec2fFromClipperPath(ClipperLib::Path &p );
-	ofVec2f minVals;
+    ofPath getofPathFromClipperPathNew(ClipperLib::Paths clipPaths);
+    ClipperLib::Paths getClipperPathsFromofPathNew(ofPath path);
+    ofVec2f minVals;
 	ofVec2f maxVals;
     
-    ClipperLib::Paths getClipperPathsFromofPathNew(ofPath path);
-	
+  	
  	
    
     
