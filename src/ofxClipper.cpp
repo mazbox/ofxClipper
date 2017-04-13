@@ -231,9 +231,17 @@ vector<ofVec2f> ofxClipper::getOfVecVec2fFromClipperPath(ClipperLib::Path &p ) {
     }
     return v;
 }
+ofPath ofxClipper::getofPathFromClipperPath(ClipperLib::Paths clipPaths){
+   PolygonList outPolys;
+    for(int i = 0; i < clipPaths.size(); i++) {
+        outPolys.push_back(getOfVecVec2fFromClipperPath(clipPaths[i]));
+    }
+    
+    return getofPathFromPolygonList(outPolys);
+
+}
 ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath inPath){
     ClipperLib::Paths output;
-    PolygonList outPolys;
     ClipperLib::Paths paths=getClipperPathsFromPath(inPath);
     int executeCount=paths.size();
     ClipperLib::Clipper clpr;
@@ -256,17 +264,12 @@ ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath inPath){
         clpr.Execute(clipType, output, pftEvenOdd, pftEvenOdd);
         clpr.Clear();
     }
-    // turn into ofPoint aka ofVec2f
-    for(int i = 0; i < output.size(); i++) {
-        outPolys.push_back(getOfVecVec2fFromClipperPath(output[i]));
-    }
     
-    return getofPathFromPolygonList(outPolys);
+    return getofPathFromClipperPath(output);
     
 }
 ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath subjectPath,ofPath clipPath) {
     ClipperLib::Paths output;
-    PolygonList outPolys;
     ClipperLib::Paths subjectP;
     ClipperLib::Paths clipP;
     ClipperLib::Clipper clpr;
@@ -279,12 +282,8 @@ ofPath ofxClipper::execute(ClipperLib::ClipType clipType, ofPath subjectPath,ofP
     // excute
     clpr.Execute(clipType, output, pftEvenOdd, pftEvenOdd);
     clpr.Clear();
-    // turn into ofPoint aka ofVec2f
-    for(int i = 0; i < output.size(); i++) {
-        outPolys.push_back( getOfVecVec2fFromClipperPath(output[i] ));
-    }
     
-    return getofPathFromPolygonList(outPolys);
+    return getofPathFromClipperPath(output);
     
 }
  

@@ -66,6 +66,7 @@ private:
     ClipperLib::Path getClipperPathFromPolyline(ofPolyline polyline);
     ClipperLib::Paths  getClipperPathsFromPath(ofPath inpath);
     ofPath getofPathFromPolygonList(PolygonList &inPolys);
+    ofPath getofPathFromClipperPath(ClipperLib::Paths clipPaths);
     vector<ofVec2f> getOfVecVec2fFromClipperPath(ClipperLib::Path &p );
 	ofVec2f minVals;
 	ofVec2f maxVals;
